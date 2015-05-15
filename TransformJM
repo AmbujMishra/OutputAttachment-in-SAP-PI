@@ -1,0 +1,119 @@
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+
+import com.sap.aii.mapping.api.AbstractTransformation;
+import com.sap.aii.mapping.api.Attachment;
+import com.sap.aii.mapping.api.OutputAttachments;
+import com.sap.aii.mapping.api.StreamTransformation;
+import com.sap.aii.mapping.api.StreamTransformationException;
+import com.sap.aii.mapping.api.TransformationInput;
+import com.sap.aii.mapping.api.TransformationOutput;
+
+public class TransformJM extends AbstractTransformation implements OutputAttachments{
+	
+	/*
+	 * Author: Ambuj Mishra
+	 * Date: 13 May 2015
+	 * Email Attachment and Packaging Delivery and Analysis Notification files
+	 */
+	
+	public void transform(TransformationInput in, TransformationOutput out) throws StreamTransformationException {
+        try{
+        	
+        	
+        				
+                    OutputStream os = out.getOutputPayload().getOutputStream();
+                    out.get
+                    //creating output attachment
+                   //OutputAttachments outAtt = out.getOutputAttachments();
+                   //OutputAttachments
+                               
+                    //if(outAtt==(null))
+                    	getTrace().addInfo("outAtt is null");
+                    //File Names
+                    String dnFileName="001DN.txt";
+                    String anFileName="001AN.txt";
+                    String CRLF = "\r\n";
+                                        
+                    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                    Document doc = dBuilder.parse(in.getInputPayload().getInputStream());
+                    
+                    getTrace().addInfo("Started");
+                    //Delivery Notification Parser
+                    	DNFile dF= new DNFile();   
+                    	String df=dF.parseDN(doc);
+                   
+                    // Forming attachment for DN file
+                    	//out.copyInputAttachments();
+                    	Attachment attDN = out.getOutputAttachments().create(dnFileName, "text/plain;name=\"" + dnFileName +"\"", df.getBytes());
+                    	out.getOutputAttachments().setAttachment(attDN);
+                    	//out.getOutputAttachments().setAttachment((Attachment)out.getOutputAttachments().create("DNFile", df.getBytes()));
+                    	                    
+                    //Analysis Notification Parser
+                    	//ANFile aF= new ANFile();
+                    	//String af=aF.parseAN(doc);
+                    
+                    //Forming attachment for AN File
+                    	//Attachment attAN = outAtt.create(anFileName, "text/plain;name=\"" + anFileName +"\"", af.getBytes());
+                    	//outAtt.setAttachment(attAN);
+                   
+                    // forming Email Package
+                    
+                        String emailPackage= 
+                    		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+CRLF+
+                    		"<ns:Mail xmlns:ns=\"http://sap.com/xi/XI/Mail/30\">"+CRLF+
+                    		"<Subject>Subject</Subject>"+CRLF+
+                    		"<From>namea@company.com</From>"+CRLF+
+                    		"<To>nameb@company.com</To>"+CRLF+
+                    		"<Reply_To />"+CRLF+
+                    		"<Content_Type>text/plain</Content_Type>"+CRLF+
+                    		"<Content></Content>"+CRLF+
+                    		"</ns:Mail>"; 
+                    
+                      // writing Email Package
+                        
+                     os.write(emailPackage.getBytes());
+                     
+                     os.flush();
+                     os.close();
+                                         				
+                                     
+        	}
+             catch (Exception e)
+             {
+                 throw new StreamTransformationException(e.getMessage());
+             }
+																												 }
+	
+	
+	@Override
+	public Attachment create(String arg0, byte[] arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Attachment create(String arg0, String arg1, byte[] arg2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void removeAttachment(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setAttachment(Attachment arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+ 
+	
